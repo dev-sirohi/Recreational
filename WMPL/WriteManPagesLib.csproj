@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <PackAsTool>true</PackAsTool>
+    <UserSecretsId>WriteManPagesLib-1259ec0b4ce86b2b1e9c644f7271403e069ef4ccbd832b0312786f0bea1f87b8</UserSecretsId>
+  </PropertyGroup>
+
+</Project>
