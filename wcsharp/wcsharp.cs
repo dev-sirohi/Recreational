@@ -2,12 +2,8 @@
     * This project was created to simulate the linux wc command which is used to extract information about file(s).
     * I am making this as part of the Coding Challenge website: https://codingchallenges.fyi/challenges/challenge-wc
 
-    todo > Print bytes in a file (-c) 
+    todo > Print bytes in a file (-c)
 */
-
-using System;
-using WMPL;
-
 namespace wcsharp;
 
 internal sealed class GlobalSettings
