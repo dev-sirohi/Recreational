@@ -1,2 +1,17 @@
-obj/
+# Visual Studio
+.vs/
+**/.vs/
+
+# Build output
 bin/
+obj/
+**/bin/
+**/obj/
+
+# Custom output folders
+output/
+**/output/
+
+# User-specific
+*.user
+*.suo
