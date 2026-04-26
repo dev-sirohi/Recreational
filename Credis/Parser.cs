@@ -48,9 +48,9 @@ public class Parser
     }
 
     /*
-        The reason I have chosen 2 << 12 (~4000) as MAX_BUFFER_SIZE is because an in-memory database is supposed to be FAST.
+        The reason I have chosen 2 << 12 (~8000) as MAX_BUFFER_SIZE is because an in-memory database is supposed to be FAST.
         It is not a file-system database that requires storing large amounts of data.
-        If anybody using an in-memory database requires more than ~4000 characters of data to be cached, they need to reconsider their project requirements.
+        If anybody using an in-memory database requires more than ~8000 characters of data to be cached, they need to reconsider their project requirements.
         But since I am no "Chris Sawyer", I accept this might be a mistake.
         Regardless, for now I will keep it as a hard-limit and maybe later add it as a configurable option.
     */
