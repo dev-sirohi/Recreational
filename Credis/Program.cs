@@ -5,15 +5,17 @@ public class Program
     public static async Task Main(string[] args)
     {
         Server? server = null;
+        CancellationTokenSource _cntSource = new CancellationTokenSource();
+        CancellationToken _cnt = _cntSource.Token;
         try
         {
             Console.WriteLine("===Credis Mini Server===");
-            Console.Write("Initializing");
             server = new Server(new Server.ServerConfig
             {
 
             });
-            var startTask = server.Start().GetAwaiter();
+            var startTask = server.StartAsync().GetAwaiter();
+            Console.WriteLine("Listening");
             while (!startTask.IsCompleted)
             {
                 Console.Write(".");
@@ -31,7 +33,8 @@ public class Program
         }
         finally
         {
-            server?.Shutdown();
+            _cntSource.Cancel();
+            _cntSource.Dispose();
         }
     }
 }
