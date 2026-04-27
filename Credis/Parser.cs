@@ -58,7 +58,8 @@ public class Parser
     private const int MAX_BUFFER_SIZE = 2 << 12;
 
     private int _edgePtr = 0;
-    private int _ptr = 0;
+    private int _inputPtr = 0;
+    private int _outPtr = 0;
     private int _expectedLength = 0;
     private byte[] _inputBuffer = new byte[0];
     private byte[] _outputBuffer = new byte[0];
@@ -93,12 +94,12 @@ public class Parser
                 _cnt.ThrowIfCancellationRequested();
 
                 int bytesRead = 0;
-                if (_edgePtr < MAX_BUFFER_SIZE)
+                if (GetEdgePtr() < MAX_BUFFER_SIZE)
                 {
-                    bytesRead = await _stream.ReadAsync(_inputBuffer, _edgePtr, MAX_BUFFER_SIZE - _edgePtr, _cnt);
+                    bytesRead = await _stream.ReadAsync(_inputBuffer, GetEdgePtr(), MAX_BUFFER_SIZE - GetEdgePtr(), _cnt);
                     if (bytesRead == 0)
                     {
-                        if (IsEOF(_ptr, _inputBuffer))
+                        if (IsEOF(GetInputPtr(), _inputBuffer, GetEdgePtr()))
                         {
                             closeConnection = true;
                         }
@@ -123,25 +124,28 @@ public class Parser
                     WriteLine(ref elapsedTimeStr);
                     await _stream.WriteAsync(_outputBuffer, 0, GetBufferedContentLength(_outputBuffer), _cnt);
                     ClearBufferedContent(_outputBuffer, 0, GetBufferedContentLength(_outputBuffer));
+                    _outPtr = 0;
+                    ClearBufferedContent(_inputBuffer, 0, GetInputPtr());
+                    _currentCommand = ParseRules.CommandType.NONE;
                 }
             }
         }
         catch (Exception ex)
         {
-
+            Console.WriteLine(ex);
         }
     }
 
     private async Task ProcessNewCommandAsync()
     {
         _parserStopwatch.Start();
-        if (_edgePtr < 4)
+        if (GetEdgePtr() < 4)
         {
             // Not enough data
             return;
         }
-        _expectedLength = BinaryPrimitives.ReadInt32BigEndian(_inputBuffer.AsSpan(_ptr, 4));
-        _ptr += 4;
+        _expectedLength = BinaryPrimitives.ReadInt32BigEndian(_inputBuffer.AsSpan(GetInputPtr(), 4));
+        _inputPtr += 4;
         SkipEOL();
         _processingPreviousCommand = true;
         await ProcessCommandAsync();
@@ -149,7 +153,7 @@ public class Parser
 
     private async Task ProcessCommandAsync()
     {
-        if (_edgePtr < 4 + _expectedLength)
+        if (GetEdgePtr() - GetInputPtr() < _expectedLength)
         {
             return;
         }
@@ -161,7 +165,7 @@ public class Parser
                 cmdLineSb.Clear();
                 return;
             }
-            string cmd = cmdLineSb.ToString(4, cmdLineSb.Length - 4);
+            string cmd = cmdLineSb.ToString();
             _currentCommand = ParseRules.GetCommandType(cmd);
         }
         if (_currentCommand == ParseRules.CommandType.INVALID)
@@ -218,26 +222,26 @@ public class Parser
 
     private bool GetLine(StringBuilder line)
     {
-        int _ptrTemp = _ptr;
-        while (!IsEOF(_ptrTemp, _inputBuffer) && !IsEOL(_ptrTemp, _inputBuffer))
+        int _ptrTemp = GetInputPtr();
+        while (!IsEOF(_ptrTemp, _inputBuffer, GetEdgePtr()) && !IsEOL(_ptrTemp, _inputBuffer))
         {
             line.Append((char)_inputBuffer[_ptrTemp]);
             _ptrTemp++;
         }
-        if (!IsEOF(_ptrTemp, _inputBuffer) && !IsEOL(_ptrTemp, _inputBuffer))
+        if (!IsEOF(_ptrTemp, _inputBuffer, GetEdgePtr()) && !IsEOL(_ptrTemp, _inputBuffer))
         {
             return false;
         }
-        _ptr = _ptrTemp;
+        _inputPtr += _ptrTemp - GetInputPtr();
         SkipEOL();
         return true;
     }
 
     private void SkipEOL()
     {
-        if (_inputBuffer[_ptr] == '\n')
+        if (_inputBuffer[GetInputPtr()] == '\n')
         {
-            _ptr++;
+            _inputPtr++;
         }
     }
 
@@ -246,16 +250,16 @@ public class Parser
         return buffer[_ptrTemp] == '\n';
     }
 
-    public bool IsEOF(int _ptrTemp, byte[] buffer)
+    public bool IsEOF(int _ptrTemp, byte[] buffer, int _edgePtrTemp)
     {
-        return buffer[_ptrTemp] == '\0' || _ptrTemp > _edgePtr;
+        return buffer[_ptrTemp] == '\0' || _ptrTemp > _edgePtrTemp;
     }
 
     public int GetBufferedContentLength(byte[] buffer)
     {
         int count = 0;
         int ptr = 0;
-        while (!IsEOL(ptr, buffer) && !IsEOF(ptr, buffer))
+        while (!IsEOF(ptr, buffer, MAX_BUFFER_SIZE))
         {
             count++;
             ptr++;
@@ -265,13 +269,17 @@ public class Parser
 
     public void WriteLine(ref string outputLine)
     {
-        int _outPtr = 0;
         foreach (char c in outputLine)
         {
+            if (_outPtr >= MAX_BUFFER_SIZE)
+            {
+                break;
+            }
             _outputBuffer[_outPtr] = (byte)c;
             _outPtr++;
         }
         _outputBuffer[_outPtr] = (byte)'\n';
+        _outPtr++;
     }
 
     private void ClearBufferedContent(byte[] buffer, int offset, int length)
@@ -280,5 +288,15 @@ public class Parser
         {
             buffer[ptr] = (byte)'\0';
         }
+    }
+
+    private int GetInputPtr()
+    {
+        return _inputPtr % MAX_BUFFER_SIZE;
+    }
+
+    private int GetEdgePtr()
+    {
+        return _edgePtr % MAX_BUFFER_SIZE;
     }
 }
