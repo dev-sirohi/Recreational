@@ -14,30 +14,30 @@ public class Client
         using var client = new TcpClient(LOCALHOST, PORT);
         using var stream = client.GetStream();
 
-        var payloadStr =
-            "cmd=set\n" +
-            "entity=user\n" +
-            "key=1\n" +
-            "value=alice\n";   // IMPORTANT newline
-
-        var payloadBytes = Encoding.UTF8.GetBytes(payloadStr);
-
-        byte[] lenBytes = new byte[4];
-        BinaryPrimitives.WriteInt32BigEndian(lenBytes, payloadBytes.Length);
-
-        // send
-        await stream.WriteAsync(lenBytes);
-        await stream.WriteAsync(payloadBytes);
-        Console.WriteLine("Sent");
-
-        // read response (optional)
-        byte[] buffer = new byte[1024];
-        int bytesRead = await stream.ReadAsync(buffer);
-
-        if (bytesRead > 0)
+        int i = 10;
+        while (i-- > 0)
         {
-            var response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            Console.WriteLine("Response: " + response);
+            var payloadStr =
+                "get\n" +
+                "1\n";
+
+            var payloadBytes = Encoding.UTF8.GetBytes(payloadStr);
+
+            byte[] lenBytes = new byte[4];
+            BinaryPrimitives.WriteInt32BigEndian(lenBytes, payloadBytes.Length);
+
+            await stream.WriteAsync(lenBytes);
+            await stream.WriteAsync(payloadBytes);
+            Console.WriteLine("Sent");
+
+            byte[] buffer = new byte[2 << 12];
+            int bytesRead = await stream.ReadAsync(buffer);
+
+            if (bytesRead > 0)
+            {
+                var response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                Console.WriteLine("Response: " + response);
+            }
         }
     }
 }
