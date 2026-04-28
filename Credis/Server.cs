@@ -77,7 +77,7 @@ public class Server
         catch (OperationCanceledException)
         {
             _serverStatus = ServerStatus.CANCELLED;
-            _faultMsg = "Operation cancelled by user";
+            _faultMsg = opEx.Message;
         }
         catch (Exception ex)
         {
