@@ -15,5 +15,5 @@ AllowShortIfStatementsOnASingleLine: Never
 BreakArrays: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
-PointerAlignment: Left
+PointerAlignment: Right
 UseTab: Never
