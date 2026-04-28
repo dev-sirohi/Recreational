@@ -1,11 +1,25 @@
 ﻿using System.Collections.Concurrent;
 
-namespace Credis;
-
 public class DataStructures
 {
-    private ConcurrentDictionary<string, Int64> _cd_str_int64 = new();
-    private ConcurrentDictionary<Int64, Int64> _cd_int64_int64 = new();
+    private static readonly DataStructures _instance = new DataStructures();
+    public static DataStructures Instance => _instance;
 
-    public DataStructures() { }
+    private readonly ConcurrentDictionary<string, string> _store = new();
+
+    private DataStructures() { }
+
+    public string Set(string key, string value)
+    {
+        return _store.AddOrUpdate(key, value, (key, value) =>
+        {
+            return value;
+        });
+    }
+
+    public string? Get(string key)
+    {
+        _store.TryGetValue(key, out string? value);
+        return value;
+    }
 }
