@@ -21,9 +21,7 @@ public class Parser
 
         /*
             Payload format:
-                [PayloadLength]
-                    38\n
-                [Payload]
+                    payload_length=38\n [in bytes]
                     cmd=set\n
                     key=1\n
                     value=alice\n
@@ -180,6 +178,12 @@ public class Parser
             case ParseRules.CommandType.GET:
                 await ProcessGetCommandAsync();
                 break;
+            case ParseRules.CommandType.INCREMENT:
+                await ProcessIncrementCommandAsync();
+                break;
+            case ParseRules.CommandType.DECREMENT:
+                await ProcessDecrementCommandAsync();
+                break;
         }
     }
 
@@ -218,6 +222,48 @@ public class Parser
 
         string value = ds.Get(key) ?? "NULL";
         WriteLine(ref value);
+    }
+
+    private async Task ProcessIncrementCommandAsync()
+    {
+        var keySb = new StringBuilder();
+        var valueSb = new StringBuilder();
+        if (!GetLine(keySb) || !GetLine(valueSb))
+        {
+            keySb.Clear();
+            valueSb.Clear();
+            return;
+        }
+
+        _processingPreviousCommand = false;
+
+        string key = keySb.ToString();
+        long value = 0;
+        Int64.TryParse(valueSb.ToString(), out value);
+
+        string incrementedValue = ds.Increment(key, value).ToString();
+        WriteLine(ref incrementedValue);
+    }
+
+    private async Task ProcessDecrementCommandAsync()
+    {
+        var keySb = new StringBuilder();
+        var valueSb = new StringBuilder();
+        if (!GetLine(keySb) || !GetLine(valueSb))
+        {
+            keySb.Clear();
+            valueSb.Clear();
+            return;
+        }
+
+        _processingPreviousCommand = false;
+
+        string key = keySb.ToString();
+        long value = 0;
+        Int64.TryParse(valueSb.ToString(), out value);
+
+        string decrementedValue = ds.Decrement(key, value).ToString();
+        WriteLine(ref decrementedValue);
     }
 
     private bool GetLine(StringBuilder line)
