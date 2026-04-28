@@ -1,4 +1,4 @@
-﻿namespace Credis;
+namespace Credis;
 
 public class Server
 {
@@ -15,13 +15,6 @@ public class Server
     {
 
     }
-
-    /*
-        1. Server accepts HTTP connections.
-        2. Once connection is established, it is upgraded to a websocket.
-        3. For each connections, it checks the amount of memory remaining for use, and if allowed, it initializes
-            a new DataStructure instance for it.
-    */
 
     private ServerStatus _serverStatus;
     private string _faultMsg = string.Empty;
@@ -40,17 +33,22 @@ public class Server
         try
         {
             _cnt.ThrowIfCancellationRequested();
-            await Task.Delay(10000);
+            _ = AcceptTcp();
+
         }
         catch (OperationCanceledException opEx)
         {
             _serverStatus = ServerStatus.CANCELLED;
-            _faultMsg = "Operation cancelled by user";
+            _faultMsg = opEx.Message;
         }
         catch (Exception ex)
         {
             _serverStatus = ServerStatus.FAULTED;
             _faultMsg = ex.Message;
+        }
+        finally
+        {
+            await Shutdown();
         }
     }
 
@@ -62,16 +60,6 @@ public class Server
     /* Functional Methods */
 
     public async Task AcceptTcp()
-    {
-
-    }
-
-    private async Task UpgradeToWebSocket()
-    {
-
-    }
-
-    private async Task CloseWebSocket()
     {
 
     }
