@@ -1,6 +1,8 @@
 #ifndef HUFFMAN_ENCODING_ERROR_CODES
 #define HUFFMAN_ENCODING_ERROR_CODES
 
+#define OK 0
+
 /* Process errors */
 #define INVALID_SCANF 101
 
