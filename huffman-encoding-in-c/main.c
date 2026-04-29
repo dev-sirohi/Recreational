@@ -5,7 +5,7 @@
 
 /* GLOBAL VARIABLES */
 
-static int F_RES = 0;
+static int OUTP = 0;
 
 /* API */
 
@@ -33,10 +33,10 @@ int run_app(void)
         return INVALID_FILE_PATH;
     }
 
-    F_RES = encode_file_content(fp);
-    if (is_error(F_RES))
+    OUTP = encode_file_content(fp);
+    if (is_error(OUTP))
     {
-        return F_RES;
+        return OUTP;
     }
 
     return OK;

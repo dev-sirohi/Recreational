@@ -18,5 +18,14 @@
     <ClCompile Include="huffman-encoding-in-cpp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="treenode.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="priority_queue.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".clang-format" />
   </ItemGroup>
 </Project>

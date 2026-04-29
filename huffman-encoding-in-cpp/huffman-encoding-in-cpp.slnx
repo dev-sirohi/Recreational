@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="huffman-encoding-in-cpp.vcxproj" />
+  <Project Path="huffman-encoding-in-cpp.vcxproj" Id="b7976099-846d-4765-98c6-7d208470fc92" />
 </Solution>
