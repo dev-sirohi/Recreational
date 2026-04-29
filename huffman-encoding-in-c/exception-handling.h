@@ -9,4 +9,7 @@
 /* File management errors */
 #define INVALID_FILE_PATH 2001
 
+void process_error(int error_code);
+int is_error(int return_value);
+
 #endif
