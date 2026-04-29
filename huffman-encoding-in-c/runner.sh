@@ -8,8 +8,10 @@ fi
 mkdir -p executables
 gcc -g \
     -Wall -Wextra \
-    exception-handling.c \
+    exceptions.c \
+    cutils.c \
+    cvectors.c \
     main.c \
     -o "executables/$1"
 
-./executables/"$1"
+./executables/"$1".exe

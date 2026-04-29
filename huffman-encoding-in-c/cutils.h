@@ -1,0 +1,6 @@
+#ifndef HUFFMAN_ENCODING_COMMON_UTILS
+#define HUFFMAN_ENCODING_COMMON_UTILS
+
+#define VAR_TO_STR(x) #x
+
+#endif

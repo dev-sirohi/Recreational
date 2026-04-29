@@ -1,54 +1,45 @@
-#include "app-constants.h"
-#include "exception-handling.h"
+#include "appconsts.h"
+#include "cvectors.h"
+#include "exceptions.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-/* GLOBAL VARIABLES */
-
-static int OUTP = 0;
-
-/* API */
-
-int encode_file_content()
-{
-
-    return OK;
-}
+int encode_file_content(FILE *fp);
 
 int run_app(void)
 {
+    printf("\n");
     printf("%s\n", "Huffman Encoding w. C");
     printf("%s\n", "Initializing...");
     printf("%s", "Enter path to the file you want to encode: ");
 
     char file_path[MAX_FILE_PATH_STR_SIZE];
-    if (scanf("%s", file_path) != 1)
+    if (1 != scanf("%s", file_path))
     {
-        return INVALID_SCANF;
+        ERR_IO_SCANF_INPUT_LEN;
+        RETERR;
     }
 
     FILE *fp = fopen(file_path, "r");
     if (fp == NULL)
     {
-        return INVALID_FILE_PATH;
+        ERR_IO_INVALID_FILE_PATH(file_path);
+        RETERR;
     }
 
-    OUTP = encode_file_content(fp);
-    if (is_error(OUTP))
-    {
-        return OUTP;
-    }
+    encode_file_content(fp);
 
     return OK;
 }
 
 int main(void)
 {
-    int result = run_app();
-    if (result > 0)
-    {
-        process_error(result);
-    }
+    run_app();
 
+    return OK;
+}
+
+int encode_file_content(FILE *fp)
+{
     return OK;
 }
