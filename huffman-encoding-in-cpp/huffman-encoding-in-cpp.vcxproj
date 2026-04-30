@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{b7976099-846d-4765-98c6-7d208470fc92}</ProjectGuid>
+    <ProjectGuid>{145ccbb4-34bc-4284-a249-1c4965d4a3ad}</ProjectGuid>
     <RootNamespace>huffmanencodingincpp</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -127,9 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="huffman-encoding-in-cpp.cpp" />
-    <ClCompile Include="priority_queue.h" />
-    <ClCompile Include="treenode.h" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

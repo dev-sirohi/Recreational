@@ -1,4 +1,4 @@
-BasedOnStyle: Google
+BasedOnStyle: LLVM
 IndentWidth: 4
 ColumnLimit: 100
 BreakBeforeBraces: Allman
@@ -17,5 +17,3 @@ BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 PointerAlignment: Right
 UseTab: Never
-AccessModifierOffset: -4
-IndentAccessModifiers: false

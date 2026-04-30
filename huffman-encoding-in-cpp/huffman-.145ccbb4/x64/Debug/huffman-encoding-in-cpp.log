@@ -1,0 +1,3 @@
+﻿  main.cpp
+C:\Users\devsi\programming\Recreational\huffman-encoding-in-cpp\main.cpp(32,1): warning C4715: 'huffman_encode': not all control paths return a value
+  huffman-encoding-in-cpp.vcxproj -> C:\Users\devsi\programming\Recreational\huffman-encoding-in-cpp\x64\Debug\huffman-encoding-in-cpp.exe
