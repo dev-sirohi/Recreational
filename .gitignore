@@ -15,3 +15,31 @@ output/
 # User-specific
 *.user
 *.suo
+
+# Build folders
+x64/
+Debug/
+Release/
+*.obj
+*.exe
+*.ilk
+*.pdb
+*.idb
+*.log
+
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.VC.db
+*.opendb
+
+# MSVC temp / logs
+*.tlog/
+*.lastbuildstate
+
+# Generated files
+*.FileListAbsolute.txt
+
+# CMake / others (optional)
+build/
+out/
