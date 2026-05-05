@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="this_is_our_secret.vcxproj" Id="3d886887-1bbc-4ee5-b6da-ac35a55f9869" />
+  <Project Path="codeforces.vcxproj" Id="f8295f07-2e7c-40e0-ab87-13b1878b3bad" />
 </Solution>
