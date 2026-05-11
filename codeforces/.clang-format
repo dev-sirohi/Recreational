@@ -1,10 +1,10 @@
 BasedOnStyle: LLVM
 IndentWidth: 4
-ColumnLimit: 120
+ColumnLimit: 999
 BreakBeforeBraces: Allman
-BinPackArguments: false
-BinPackParameters: false
-AlignAfterOpenBracket: true
+BinPackArguments: true
+BinPackParameters: true
+AlignAfterOpenBracket: Align
 AlignArrayOfStructures: Right
 AlignConsecutiveAssignments: Consecutive
 AlignOperands: AlignAfterOperator
@@ -17,3 +17,8 @@ BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 PointerAlignment: Right
 UseTab: Never
+# PenaltyBreakBeforeFirstCallParameter: 0
+# AllowAllArgumentsOnNextLine: false
+IndentCaseLabels: true
+EmptyLineAfterAccessModifier: Always
+IndentAccessModifiers: true
