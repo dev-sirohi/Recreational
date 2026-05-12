@@ -6,30 +6,53 @@
 
 using namespace std;
 
-#define push_back pb
+#define pb push_back
 
 typedef long long ll;
 
-void InitFastIO(void)
+#pragma region FastIO
+void InitFastIO(const char *filename = nullptr)
 {
     ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    cout.tie(NULL);
-#ifndef ONLINE_JUDGE
+    cin.tie(nullptr);
+
     FILE *outval;
+
+#ifdef LOCAL
     outval = freopen("input.in", "r", stdin);
     if (outval == nullptr)
     {
-        throw runtime_error("Filename does not exist");
+        throw runtime_error("input.in does not exist");
     }
+
     outval = freopen("output.out", "w", stdout);
     if (outval == nullptr)
     {
-        throw runtime_error("Filename does not exist");
+        throw runtime_error("output.out could not be opened");
+    }
+#else
+    if (filename != nullptr)
+    {
+        string inputFile  = string(filename) + ".in";
+        string outputFile = string(filename) + ".out";
+
+        outval = freopen(inputFile.c_str(), "r", stdin);
+        if (outval == nullptr)
+        {
+            throw runtime_error(inputFile + " does not exist");
+        }
+
+        outval = freopen(outputFile.c_str(), "w", stdout);
+        if (outval == nullptr)
+        {
+            throw runtime_error(outputFile + " could not be opened");
+        }
     }
 #endif
 }
+#pragma endregion
 
+#pragma region SegmentTree
 template <typename T> class SegmentTree
 {
         static_assert(is_same_v<T, int> || is_same_v<T, long long>, "T must be int or long long");
@@ -168,12 +191,13 @@ template <typename T> class SegmentTree
             return _Query(1, 0, _size - 1, rangeLeft, rangeRight);
         }
 };
+#pragma endregion
 
 void Solve(void);
 
 int main(void)
 {
-    InitFastIO();
+    InitFastIO("cowsignal");
     int t = 1;
     // cin >> t;
     while (t--)
@@ -184,37 +208,31 @@ int main(void)
 }
 
 const int MAXN = 200000 + 5;
-const vector<ll> temps(MAXN, 0);
+//vector<ll> temp_vec(MAXN, 0);
 
-void Solve()
+void Solve(void)
 {
-    SegmentTree<ll> sgtree(temps);
+    ll M, N, K;
+    cin >> M >> N >> K;
 
-    size_t recipes, k, q;
-    cin >> recipes >> k >> q;
-
-    for (size_t i = 0; i < recipes; i++)
+    vector<string> lines(M);
+    for (ll i = 0; i < M; i++)
     {
-        size_t l, r;
-        cin >> l >> r;
-        sgtree.Update(l, r, 1);
+        cin >> lines[i];
     }
 
-    vector<ll> good(MAXN, 0);
-
-    for (size_t i = 1; i < MAXN; i++)
+    for (ll i = 0; i < M; i++)
     {
-        if (sgtree.Query(i, i) >= k)
-            good[i] = 1;
-    }
-
-    for (size_t i = 1; i < MAXN; i++)
-        good[i] += good[i - 1];
-
-    for (size_t i = 0; i < q; i++)
-    {
-        size_t l, r;
-        cin >> l >> r;
-        cout << good[r] - good[l - 1] << "\n";
-    }
+        for (ll _i = 0; _i < K; _i++)
+        {
+            for (ll j = 0; j < N; j++)
+            {
+                for (ll _j = 0; _j < K; _j++)
+                {
+                    cout << lines[i][j];
+                }
+            }
+            cout << "\n";
+        }
+    } 
 }
