@@ -58,7 +58,6 @@ template <typename T> class SegmentTree
         static_assert(is_same_v<T, int> || is_same_v<T, long long>, "T must be int or long long");
 
     private:
-
         size_t _size;
         vector<T> _sourceArr;
         vector<T> _tree;
@@ -82,7 +81,8 @@ template <typename T> class SegmentTree
             _tree[node] = _tree[leftNode] + _tree[rightNode];
         }
 
-        void _Update(size_t node, size_t segmentLeft, size_t segmentRight, const size_t rangeLeft, const size_t rangeRight, const T value)
+        void _Update(size_t node, size_t segmentLeft, size_t segmentRight, const size_t rangeLeft,
+                     const size_t rangeRight, const T value)
         {
             size_t nodeLeft  = node * 2;
             size_t nodeRight = (node * 2) + 1;
@@ -126,7 +126,8 @@ template <typename T> class SegmentTree
             _tree[node] = _tree[nodeLeft] + _tree[nodeRight];
         }
 
-        T _Query(size_t node, size_t segmentLeft, size_t segmentRight, const size_t rangeLeft, const size_t rangeRight)
+        T _Query(size_t node, size_t segmentLeft, size_t segmentRight, const size_t rangeLeft,
+                 const size_t rangeRight)
         {
             size_t nodeLeft  = node * 2;
             size_t nodeRight = (node * 2) + 1;
@@ -158,14 +159,13 @@ template <typename T> class SegmentTree
             // Partial overlap
             size_t mid = segmentLeft + (segmentRight - segmentLeft) / 2;
 
-            T leftSum = _Query(nodeLeft, segmentLeft, mid, rangeLeft, rangeRight);
+            T leftSum  = _Query(nodeLeft, segmentLeft, mid, rangeLeft, rangeRight);
             T rightSum = _Query(nodeRight, mid + 1, segmentRight, rangeLeft, rangeRight);
 
             return leftSum + rightSum;
         }
 
     public:
-
         SegmentTree(const vector<T> &arr)
         {
             _size = arr.size();
@@ -175,7 +175,7 @@ template <typename T> class SegmentTree
 
             for (size_t i = 0; i < _size; i++)
             {
-                _sourceArr[i]    = arr[i];
+                _sourceArr[i] = arr[i];
             }
 
             _Build(1, 0, _size - 1);
@@ -197,7 +197,7 @@ void Solve(void);
 
 int main(void)
 {
-    InitFastIO("cowsignal");
+    InitFastIO("shuffle");
     int t = 1;
     // cin >> t;
     while (t--)
@@ -208,31 +208,35 @@ int main(void)
 }
 
 const int MAXN = 200000 + 5;
-//vector<ll> temp_vec(MAXN, 0);
+// vector<ll> temp_vec(MAXN, 0);
 
 void Solve(void)
 {
-    ll M, N, K;
-    cin >> M >> N >> K;
+    ll N;
+    cin >> N;
 
-    vector<string> lines(M);
-    for (ll i = 0; i < M; i++)
+    vector<ll> shuffle(N, 0);
+    for (ll i = 0; i < N; i++)
     {
-        cin >> lines[i];
+        cin >> shuffle[i];
     }
-
-    for (ll i = 0; i < M; i++)
+    vector<ll> cows(N, 0);
+    for (ll i = 0; i < N; i++)
     {
-        for (ll _i = 0; _i < K; _i++)
+        cin >> cows[i];
+    }
+    vector<ll> cowsReversed(N, 0);
+    for (ll t = 0; t < 3; t++)
+    {
+        for (ll i = 0; i < N; i++)
         {
-            for (ll j = 0; j < N; j++)
-            {
-                for (ll _j = 0; _j < K; _j++)
-                {
-                    cout << lines[i][j];
-                }
-            }
-            cout << "\n";
+            cowsReversed[i] = cows[shuffle.at(i) - 1];
         }
-    } 
+
+        cows = cowsReversed;
+    }
+    for (ll i = 0; i < N; i++)
+    {
+        cout << cowsReversed[i] << "\n";
+    }
 }
