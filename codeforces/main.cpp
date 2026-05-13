@@ -9,9 +9,7 @@
 using namespace std;
 
 #define pb push_back
-#define popb pop_back
-#define vll(_N, _name, _init) vector<ll> _name(_N, _init)
-#define stk_ll vector<ll>
+#define all(v) v.begin(), v.end()
 
 typedef long long ll;
 
@@ -60,6 +58,7 @@ void InitFastIO(const char *filename = nullptr)
 #pragma endregion
 
 #pragma region SegmentTree
+
 template <typename T> class SegmentTree
 {
     static_assert(is_same_v<T, int> || is_same_v<T, long long>, "T must be int or long long");
@@ -198,6 +197,7 @@ template <typename T> class SegmentTree
         return _Query(1, 0, _size - 1, rangeLeft, rangeRight);
     }
 };
+
 #pragma endregion
 
 #pragma region BinaryHeap
@@ -325,5 +325,5 @@ int main(void)
 
 void Solve(void)
 {
-    
+
 }
