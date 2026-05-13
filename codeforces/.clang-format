@@ -23,5 +23,5 @@ AllowShortLambdasOnASingleLine: None
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 
-IndentCaseLabels: true
-IndentAccessModifiers: true
+#IndentCaseLabels: true
+#IndentAccessModifiers: true
