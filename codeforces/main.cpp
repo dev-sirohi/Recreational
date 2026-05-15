@@ -325,5 +325,35 @@ int main(void)
 
 void Solve(void)
 {
+    ll N;
+    cin >> N;
 
+    vector<pair<string, pair<ll, ll>>> input(N);
+    for (ll i = 0; i < N; i++)
+    {
+        string ramp;
+        pair<ll, ll> range;
+        cin >> ramp >> range.first >> range.second;
+        input[i] = pair<string, pair<ll, ll>>{ramp, range};
+    }
+
+    auto pre  = pair<ll, ll>{0, 0};
+    auto post = pair<ll, ll>{0, 0};
+
+    for (ll i = 0; i < N; i++)
+    {
+        auto curr = input[i];
+        ll min    = 0;
+        ll max    = 0;
+
+        if (curr.first == "on")
+        {
+        }
+        else if (curr.first == "none")
+        {
+        }
+        else if (curr.first == "off")
+        {
+        }
+    }
 }
