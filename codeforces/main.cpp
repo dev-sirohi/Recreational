@@ -4,12 +4,15 @@
 #include <optional>
 #include <queue>
 #include <unordered_map>
+#include <unordered_set>
+#include <climits>
 #include <vector>
 
 using namespace std;
 
 #define pb push_back
 #define all(v) v.begin(), v.end()
+#define newl  "\n"
 
 typedef long long ll;
 
@@ -313,7 +316,7 @@ void Solve(void);
 
 int main(void)
 {
-    InitFastIO("traffic");
+    InitFastIO(nullptr);
     int t = 1;
     // cin >> t;
     while (t--)
@@ -323,37 +326,16 @@ int main(void)
     return 0;
 }
 
-void Solve(void)
+inline void Solve(void)
 {
     ll N;
     cin >> N;
 
-    vector<pair<string, pair<ll, ll>>> input(N);
+    vector<ll> flowers(N);
     for (ll i = 0; i < N; i++)
     {
-        string ramp;
-        pair<ll, ll> range;
-        cin >> ramp >> range.first >> range.second;
-        input[i] = pair<string, pair<ll, ll>>{ramp, range};
+        cin >> flowers[i];
     }
 
-    auto pre  = pair<ll, ll>{0, 0};
-    auto post = pair<ll, ll>{0, 0};
-
-    for (ll i = 0; i < N; i++)
-    {
-        auto curr = input[i];
-        ll min    = 0;
-        ll max    = 0;
-
-        if (curr.first == "on")
-        {
-        }
-        else if (curr.first == "none")
-        {
-        }
-        else if (curr.first == "off")
-        {
-        }
-    }
+    ll res = 0;
 }
