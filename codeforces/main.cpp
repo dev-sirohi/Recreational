@@ -66,7 +66,7 @@ inline void Solve(void);
 
 int main(void)
 {
-    InitFastIO("pails");
+    InitFastIO(nullptr);
     int t = 1;
     // cin >> t;
     while (t--)
@@ -76,28 +76,44 @@ int main(void)
     return 0;
 }
 
-vector<ll> cache;
-
-inline ll Recursion(const ll &N, const ll &K, const vector<ll> &diamonds, ll curr)
-{
-    if (curr == N)
-    {
-        return 0;
-    }
-
-
-}
-
 inline void Solve(void)
 {
-    ll N, K;
-    cin >> N >> K;
+    ll N;
+    cin >> N;
 
-    vector<ll> diamonds(N);
+    vector<pair<char, ll>> cows(N);
     for (ll i = 0; i < N; i++)
     {
-        cin >> diamonds[i];
+        cows[i] = pair<char, ll>();
+        cin >> cows[i].first >> cows[i].second;
     }
 
+    ll honestCows = 1;
+    ll dishonestCows = 0;
+    auto lyingCondition = cows[0];
 
+    for (ll i = 0; i < N; i++)
+    {
+        if (cows[i].second > lyingCondition.second && cows[i].first != lyingCondition.first)
+        {
+            dishonestCows++;
+        }
+        else
+        {
+            honestCows++;
+        }
+
+        if (honestCows >= dishonestCows)
+        {
+            ll temp = honestCows;
+            honestCows = dishonestCows;
+            dishonestCows = temp;
+
+            lyingCondition = 
+        }
+        else
+        {
+
+        }
+    }
 }

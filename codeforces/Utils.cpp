@@ -1,3 +1,16 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <algorithm>
+#include <climits>
+#include <iostream>
+#include <optional>
+#include <queue>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+using namespace std;
+
 #pragma region SegmentTree
 
 template <typename T> class SegmentTree
