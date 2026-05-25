@@ -1,10 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <algorithm>
-#include <climits>
 #include <iostream>
+#include <limits>
 #include <optional>
 #include <queue>
-#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -13,8 +12,9 @@ using namespace std;
 
 #define pb push_back
 #define all(v) v.begin(), v.end()
-#define spc " "
 #define newl "\n"
+#define spc " "
+#define c_spc ' '
 
 typedef long long ll;
 
@@ -62,11 +62,51 @@ void InitFastIO(const char *filename = nullptr)
 
 #pragma endregion
 
-inline void Solve(void);
+namespace Helper
+{
+namespace Vector
+{
+template <typename T> void Print(const vector<T> &v, char separator)
+{
+    for (size_t i = 0; i < v.size(); i++)
+    {
+        cout << v.at(i) << separator;
+    }
+}
+template <typename T> size_t FindIndex(const vector<T> &v, const T &e)
+{
+    for (size_t i = 0; i < v.size(); i++)
+    {
+        if (v.at(i) == e)
+        {
+            return i;
+        }
+    }
+
+    return 0;
+}
+} // namespace Vector
+namespace UnorderedMap
+{
+template <typename T1, typename T2> bool Contains(const unordered_map<T1, T2> &map, const T1 &e)
+{
+    return map.find(e) != map.end();
+}
+} // namespace UnorderedMap
+namespace UnorderedSet
+{
+template <typename T> bool Contains(const unordered_set<T> &set, const T &e)
+{
+    return set.find(e) != set.end();
+}
+} // namespace UnorderedSet
+} // namespace Helper
+
+void Solve(void);
 
 int main(void)
 {
-    InitFastIO(nullptr);
+    InitFastIO("cownomics");
     int t = 1;
     // cin >> t;
     while (t--)
@@ -76,44 +116,54 @@ int main(void)
     return 0;
 }
 
+vector<char> ALPHA{'A', 'C', 'G', 'T'};
+
 inline void Solve(void)
 {
-    ll N;
-    cin >> N;
+    ll N, M;
+    cin >> N >> M;
 
-    vector<pair<char, ll>> cows(N);
+    unordered_set<char> spottySeq;
     for (ll i = 0; i < N; i++)
     {
-        cows[i] = pair<char, ll>();
-        cin >> cows[i].first >> cows[i].second;
+        char c;
+        cin >> c;
+        spottySeq.insert(c);
     }
-
-    ll honestCows = 1;
-    ll dishonestCows = 0;
-    auto lyingCondition = cows[0];
-
+    vector<string> plainCows(N);
     for (ll i = 0; i < N; i++)
     {
-        if (cows[i].second > lyingCondition.second && cows[i].first != lyingCondition.first)
+        cin >> plainCows[i];
+    }
+
+    ll finalCount = 0;
+    for (ll i = 0; i < M; i++)
+    {
+        int alphaCount = 0;
+        for (char alpha : ALPHA)
         {
-            dishonestCows++;
-        }
-        else
-        {
-            honestCows++;
+            if (Helper::UnorderedSet::Contains(spottySeq, alpha))
+            {
+                alphaCount++;
+            }
         }
 
-        if (honestCows >= dishonestCows)
+        if (alphaCount == ALPHA.size())
         {
-            ll temp = honestCows;
-            honestCows = dishonestCows;
-            dishonestCows = temp;
-
-            lyingCondition = 
+            continue;
         }
-        else
-        {
 
+        ll uniques = 0;
+        for (ll j = 0; j < N; j++)
+        {
+            if (!Helper::UnorderedSet::Contains(spottySeq, plainCows[j][i])) {
+                uniques++;
+            }
+        }
+        if (uniques == N) {
+            finalCount++;
         }
     }
+
+    cout << finalCount << newl;
 }
