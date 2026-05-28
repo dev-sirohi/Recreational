@@ -68,7 +68,8 @@ namespace Helper
 {
     namespace IO
     {
-        template <typename... Args> void Print(const std::string_view &separator, const Args&... args)
+        template <typename... Args>
+        void Print(const std::string_view &separator, const Args &...args)
         {
             (std::cout << ... << args) << separator;
         }
@@ -96,11 +97,24 @@ namespace Helper
                 cout << v.at(i) << separator;
             }
         }
-        template <typename T> size_t FindIndex(const std::vector<T> &v, const T &e)
+        template <typename T> int FindIndex(const std::vector<T> &v, const T &e)
         {
-            for (size_t i = 0; i < v.size(); i++)
+            for (int i = 0; i < v.size(); i++)
             {
                 if (v.at(i) == e)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+        template <typename T1, typename T2>
+        int FindIndex(const std::vector<pair<T1, T2>> &v, const T1 &e)
+        {
+            for (int i = 0; i < v.size(); i++)
+            {
+                if (v.at(i).first == e)
                 {
                     return i;
                 }
@@ -140,6 +154,15 @@ namespace Helper
             }
             return v.at(v.size() - 1);
         }
+        template <typename T> bool Contains(const std::vector<T> &v, const T &e)
+        {
+            return Helper::Vector::FindIndex(v, e) != -1;
+        }
+        template <typename T1, typename T2>
+        bool Contains(const std::vector<pair<T1, T2>> &v, const T1 &e)
+        {
+            return Helper::Vector::FindIndex(v, e) != -1;
+        }
     } // namespace Vector
 
     namespace UnorderedMap
@@ -167,7 +190,7 @@ void Solve(void);
 
 int main(void)
 {
-    InitFastIO("lifeguards");
+    InitFastIO("guess");
     int t = 1;
     // cin >> t;
     while (t--)
@@ -177,52 +200,38 @@ int main(void)
     return 0;
 }
 
-typedef struct
-{
-    ll Start;
-    ll End;
-} Shift;
-
 void Solve(void)
 {
     ll N;
     cin >> N;
 
-    vector<Shift> lifeguards(N);
+    vector<pair<string, ll>> input;
     for (ll i = 0; i < N; i++)
     {
-        Shift s;
-        cin >> s.Start;
-        cin >> s.End;
-        lifeguards[i] = s;
-    }
-
-    sort(lifeguards.begin(), lifeguards.end(),
-         [](const Shift &a, const Shift &b)
-         {
-             return a.Start < b.Start;
-         });
-
-    vector<ll> totalTimeCoveredAtEachPoint(N);
-    totalTimeCoveredAtEachPoint[0] = Helper::Vector::First(lifeguards).End;
-    for (ll i = 1; i < N; i++)
-    {
-        totalTimeCoveredAtEachPoint[i] = lifeguards.at(i).End;
-        if (lifeguards.at(i).Start > lifeguards.at(i - 1).End)
+        string s;
+        cin >> s;
+        ll n;
+        cin >> n;
+        for (ll j = 0; j < n; j++)
         {
-            totalTimeCoveredAtEachPoint[i] -= lifeguards.at(i).Start - lifeguards.at(i - 1).End;
+            string ss;
+            cin >> ss;
+            ll index = Helper::Vector::FindIndex(input, ss);
+            if (index != -1)
+            {
+                input[index].second++;
+            }
+            else
+            {
+                pair<string, ll> p{ss, 1};
+                input.pb(p);
+            }
         }
     }
 
-    ll maxTimeCovered =
-        Helper::Vector::Last(totalTimeCoveredAtEachPoint) - Helper::Vector::First(lifeguards).End;
-
-    for (ll i = 1; i < N; i++)
-    {
-        Helper::Math::UpdateMax(maxTimeCovered, Helper::Vector::Last(totalTimeCoveredAtEachPoint) -
-                                                    totalTimeCoveredAtEachPoint.at(i) +
-                                                    totalTimeCoveredAtEachPoint.at(i - 1));
-    }
-
-    Helper::IO::PrintLine(maxTimeCovered);
+    sort(all(input),
+         [](const pair<string, ll> &p1, const pair<string, ll> &p2)
+         {
+             return p1.second > p2.second;
+         });
 }
