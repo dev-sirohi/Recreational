@@ -172,6 +172,12 @@ namespace Helper
         {
             return map.find(e) != map.end();
         }
+
+        template <typename T1, typename T2, typename = std::enable_if_t<std::is_arithmetic_v<T2>>>
+        void AddOrIncrement(std::unordered_map<T1, T2> &map, const T1 &e, const T2 &incr = 1)
+        {
+            map[e] += incr;
+        }
     } // namespace UnorderedMap
 
     namespace UnorderedSet
@@ -205,33 +211,20 @@ void Solve(void)
     ll N;
     cin >> N;
 
-    vector<pair<string, ll>> input;
+    unordered_map<string, ll> frequency;
     for (ll i = 0; i < N; i++)
     {
-        string s;
-        cin >> s;
-        ll n;
-        cin >> n;
-        for (ll j = 0; j < n; j++)
+        string animalName;
+        cin >> animalName;
+
+        ll attributeCount;
+        cin >> attributeCount;
+
+        for (ll j = 0; j < attributeCount; j++)
         {
-            string ss;
-            cin >> ss;
-            ll index = Helper::Vector::FindIndex(input, ss);
-            if (index != -1)
-            {
-                input[index].second++;
-            }
-            else
-            {
-                pair<string, ll> p{ss, 1};
-                input.pb(p);
-            }
+            string attr;
+            cin >> attr;
+            Helper::UnorderedMap::AddOrIncrement(frequency, attr);
         }
     }
-
-    sort(all(input),
-         [](const pair<string, ll> &p1, const pair<string, ll> &p2)
-         {
-             return p1.second > p2.second;
-         });
 }

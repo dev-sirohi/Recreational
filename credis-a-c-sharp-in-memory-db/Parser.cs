@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
 
@@ -15,16 +14,30 @@ public class Parser
             INVALID,
             SET,
             GET,
+            DELETE,
+            EXISTS,
             INCREMENT,
             DECREMENT,
+            EXPIRE,
+            TTL,
         }
 
         /*
-            Payload format:
-                    payload_length=38\n [in bytes]
-                    cmd=set\n
-                    key=1\n
-                    value=alice\n
+            Wire format of a single request:
+
+                    [4 bytes] payload length, big-endian Int32 (the bytes AFTER this prefix)
+                    cmd\n                   e.g. set
+                    arg1\n                  e.g. the key
+                    arg2\n                  e.g. the value, when the command takes one
+
+            Every line is terminated by '\n', including the last one. The server answers
+            with exactly one '\n'-terminated line carrying the result of the command.
+
+            Examples:
+                    set\nname\nalice\n      -> alice
+                    get\nname\n             -> alice   (or NULL when the key is missing)
+                    expire\nname\n60\n      -> 1       (0 when the key does not exist)
+                    ttl\nname\n             -> 60      (-1 no expiry, -2 missing)
         */
 
         public static CommandType GetCommandType(string cmd = "")
@@ -34,11 +47,19 @@ public class Parser
                 case "set":
                     return CommandType.SET;
                 case "get":
-                    return CommandType.SET;
+                    return CommandType.GET;
+                case "delete":
+                    return CommandType.DELETE;
+                case "exists":
+                    return CommandType.EXISTS;
                 case "increment":
                     return CommandType.INCREMENT;
                 case "decrement":
                     return CommandType.DECREMENT;
+                case "expire":
+                    return CommandType.EXPIRE;
+                case "ttl":
+                    return CommandType.TTL;
                 default:
                     return CommandType.INVALID;
             }
@@ -66,7 +87,6 @@ public class Parser
     private ParseRules.CommandType _currentCommand = ParseRules.CommandType.NONE;
 
     private NetworkStream _stream;
-    private Stopwatch _parserStopwatch;
     private CancellationToken _cnt;
 
     private DataStructures ds = DataStructures.Instance;
@@ -78,8 +98,6 @@ public class Parser
 
         _inputBuffer = new byte[MAX_BUFFER_SIZE];
         _outputBuffer = new byte[MAX_BUFFER_SIZE];
-
-        _parserStopwatch = new Stopwatch();
     }
 
     public async Task ParseAsync()
@@ -116,15 +134,21 @@ public class Parser
 
                 if (!_processingPreviousCommand)
                 {
-                    _parserStopwatch.Stop();
-                    long elapsedTime = _parserStopwatch.ElapsedMilliseconds;
-                    string elapsedTimeStr = "Time Spent processing: " + elapsedTime.ToString();
-                    WriteLine(ref elapsedTimeStr);
-                    await _stream.WriteAsync(_outputBuffer, 0, GetBufferedContentLength(_outputBuffer), _cnt);
-                    ClearBufferedContent(_outputBuffer, 0, GetBufferedContentLength(_outputBuffer));
+                    int outputLength = GetBufferedContentLength(_outputBuffer);
+                    await _stream.WriteAsync(_outputBuffer, 0, outputLength, _cnt);
+                    ClearBufferedContent(_outputBuffer, 0, outputLength);
                     _outPtr = 0;
                     ClearBufferedContent(_inputBuffer, 0, GetInputPtr());
                     _currentCommand = ParseRules.CommandType.NONE;
+
+                    // Once everything in the buffer has been consumed, rewind both pointers
+                    // back to the front. Without this a long-lived connection keeps marching
+                    // them forward until a command straddles the end of the buffer.
+                    if (GetInputPtr() == GetEdgePtr())
+                    {
+                        _inputPtr = 0;
+                        _edgePtr = 0;
+                    }
                 }
             }
         }
@@ -136,7 +160,6 @@ public class Parser
 
     private async Task ProcessNewCommandAsync()
     {
-        _parserStopwatch.Start();
         if (GetEdgePtr() < 4)
         {
             // Not enough data
@@ -178,11 +201,23 @@ public class Parser
             case ParseRules.CommandType.GET:
                 await ProcessGetCommandAsync();
                 break;
+            case ParseRules.CommandType.DELETE:
+                await ProcessDeleteCommandAsync();
+                break;
+            case ParseRules.CommandType.EXISTS:
+                await ProcessExistsCommandAsync();
+                break;
             case ParseRules.CommandType.INCREMENT:
                 await ProcessIncrementCommandAsync();
                 break;
             case ParseRules.CommandType.DECREMENT:
                 await ProcessDecrementCommandAsync();
+                break;
+            case ParseRules.CommandType.EXPIRE:
+                await ProcessExpireCommandAsync();
+                break;
+            case ParseRules.CommandType.TTL:
+                await ProcessTtlCommandAsync();
                 break;
         }
     }
@@ -222,6 +257,40 @@ public class Parser
 
         string value = ds.Get(key) ?? "NULL";
         WriteLine(ref value);
+    }
+
+    private async Task ProcessDeleteCommandAsync()
+    {
+        var keySb = new StringBuilder();
+        if (!GetLine(keySb))
+        {
+            keySb.Clear();
+            return;
+        }
+
+        _processingPreviousCommand = false;
+
+        string key = keySb.ToString();
+
+        string result = ds.Delete(key) ? "OK" : "NULL";
+        WriteLine(ref result);
+    }
+
+    private async Task ProcessExistsCommandAsync()
+    {
+        var keySb = new StringBuilder();
+        if (!GetLine(keySb))
+        {
+            keySb.Clear();
+            return;
+        }
+
+        _processingPreviousCommand = false;
+
+        string key = keySb.ToString();
+
+        string result = ds.Exists(key) ? "1" : "0";
+        WriteLine(ref result);
     }
 
     private async Task ProcessIncrementCommandAsync()
@@ -264,6 +333,44 @@ public class Parser
 
         string decrementedValue = ds.Decrement(key, value).ToString();
         WriteLine(ref decrementedValue);
+    }
+
+    private async Task ProcessExpireCommandAsync()
+    {
+        var keySb = new StringBuilder();
+        var valueSb = new StringBuilder();
+        if (!GetLine(keySb) || !GetLine(valueSb))
+        {
+            keySb.Clear();
+            valueSb.Clear();
+            return;
+        }
+
+        _processingPreviousCommand = false;
+
+        string key = keySb.ToString();
+        long seconds = 0;
+        Int64.TryParse(valueSb.ToString(), out seconds);
+
+        string result = ds.Expire(key, seconds) ? "1" : "0";
+        WriteLine(ref result);
+    }
+
+    private async Task ProcessTtlCommandAsync()
+    {
+        var keySb = new StringBuilder();
+        if (!GetLine(keySb))
+        {
+            keySb.Clear();
+            return;
+        }
+
+        _processingPreviousCommand = false;
+
+        string key = keySb.ToString();
+
+        string result = ds.Ttl(key).ToString();
+        WriteLine(ref result);
     }
 
     private bool GetLine(StringBuilder line)

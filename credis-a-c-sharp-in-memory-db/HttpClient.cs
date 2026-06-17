@@ -1,43 +1,52 @@
+/*
+    HttpClient.cs — a tiny, readable quickstart client. It walks through one of every
+    command so you can see the wire protocol in action without reading the parser.
+
+    Like Test.cs it carries its own entry point and is kept out of the server build.
+    Run the server first, then:
+
+        dotnet run HttpClient.cs
+*/
+
+using System.Buffers.Binary;
 using System.Net.Sockets;
 using System.Text;
-using System.Buffers.Binary;
 
-namespace HttpClient;
+const string LOCALHOST = "127.0.0.1";
+const int PORT = 5050;
 
-public class Client
+using var client = new TcpClient(LOCALHOST, PORT);
+using var stream = client.GetStream();
+
+// (command sent, reply received) for a small tour of the API.
+await Run("set\nuser:1\nalice\n");      // -> alice
+await Run("get\nuser:1\n");             // -> alice
+await Run("exists\nuser:1\n");          // -> 1
+
+await Run("increment\nvisits\n1\n");    // -> 1
+await Run("increment\nvisits\n10\n");   // -> 11
+await Run("decrement\nvisits\n4\n");    // -> 7
+
+await Run("expire\nuser:1\n60\n");      // -> 1
+await Run("ttl\nuser:1\n");             // -> ~60
+
+await Run("delete\nuser:1\n");          // -> OK
+await Run("get\nuser:1\n");             // -> NULL
+
+async Task Run(string payload)
 {
-    public const string LOCALHOST = "127.0.0.1";
-    public const int PORT = 5050;
+    byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
 
-    public static async Task Main(string[] args)
-    {
-        using var client = new TcpClient(LOCALHOST, PORT);
-        using var stream = client.GetStream();
+    byte[] lenBytes = new byte[4];
+    BinaryPrimitives.WriteInt32BigEndian(lenBytes, payloadBytes.Length);
 
-        int i = 10;
-        while (i-- > 0)
-        {
-            var payloadStr =
-                "get\n" +
-                "1\n";
+    await stream.WriteAsync(lenBytes);
+    await stream.WriteAsync(payloadBytes);
 
-            var payloadBytes = Encoding.UTF8.GetBytes(payloadStr);
+    byte[] buffer = new byte[2 << 12];
+    int bytesRead = await stream.ReadAsync(buffer);
 
-            byte[] lenBytes = new byte[4];
-            BinaryPrimitives.WriteInt32BigEndian(lenBytes, payloadBytes.Length);
-
-            await stream.WriteAsync(lenBytes);
-            await stream.WriteAsync(payloadBytes);
-            Console.WriteLine("Sent");
-
-            byte[] buffer = new byte[2 << 12];
-            int bytesRead = await stream.ReadAsync(buffer);
-
-            if (bytesRead > 0)
-            {
-                var response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Console.WriteLine("Response: " + response);
-            }
-        }
-    }
+    string request = payload.Replace("\n", " ").TrimEnd();
+    string response = Encoding.UTF8.GetString(buffer, 0, bytesRead).TrimEnd();
+    Console.WriteLine($"{request,-28} -> {response}");
 }

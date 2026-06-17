@@ -40,8 +40,9 @@ public class Server
         _port = config.Port;
     }
 
-    public async Task StartAsync()
+    public async Task StartAsync(CancellationToken cnt)
     {
+        _cnt = cnt;
         _serverStatus = ServerStatus.INITIALIZING;
         try
         {
@@ -74,7 +75,7 @@ public class Server
                 }
             }
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException opEx)
         {
             _serverStatus = ServerStatus.CANCELLED;
             _faultMsg = opEx.Message;
